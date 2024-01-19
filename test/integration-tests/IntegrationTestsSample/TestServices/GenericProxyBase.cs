@@ -9,11 +9,11 @@ public static class GenericProxy
 
 public abstract class GenericProxyBase<TService>
 {
-    private readonly Lazy<TService> _lazy;
+    private readonly Lazy<TService> _originalService;
 
     protected GenericProxyBase(IServiceProvider serviceProvider, int index)
     {
-        _lazy = new Lazy<TService>(() =>
+        _originalService = new Lazy<TService>(() =>
         {
             var serviceDescriptorsProvider = serviceProvider.GetRequiredService<GenericServiceDescriptorsProvider>();
             var serviceDescriptor = serviceDescriptorsProvider.ServiceDescriptors[index - GenericProxy.IndexOffset];
@@ -22,5 +22,5 @@ public abstract class GenericProxyBase<TService>
         });
     }
 
-    protected TService Service => Service<TService>.Current ?? _lazy.Value;
+    protected TService Service => Service<TService>.Current ?? _originalService.Value;
 }

@@ -204,7 +204,7 @@ public class IndexPageTests :
     [Fact]
     public async Task Get_NSubstituteService_ProvidesQuoteInPage()
     {
-        NSubstituteService.SetCurrentFor<IQuoteService>()
+        Service.SetCurrent(Substitute.For<IQuoteService>())
             .GenerateQuote().ReturnsForAnyArgs("test1");
 
         //Act
@@ -214,19 +214,5 @@ public class IndexPageTests :
 
         // Assert
         Assert.Equal("test1", quoteElement.Attributes["value"].Value);
-    }
-
-    [Fact]
-    public async Task Get_Options_ProvidesQuoteInPage()
-    {
-        Service<IOptions<PositionOptions>>.Current = new TestOptions<PositionOptions>(new PositionOptions { Name = "3" });
-
-        //Act
-        var defaultPage = await _client.GetAsync("/");
-        var content = await HtmlHelpers.GetDocumentAsync(defaultPage);
-        var quoteElement = content.QuerySelector("#quote");
-
-        // Assert
-        Assert.Equal("3", quoteElement.Attributes["value"].Value);
     }
 }

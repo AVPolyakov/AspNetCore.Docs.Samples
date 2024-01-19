@@ -1,32 +1,26 @@
-﻿#nullable enable
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Reflection;
 using System.Reflection.Emit;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
-using RazorPagesProject.Services;
-using TestServices;
 
-namespace RazorPagesProject.Tests;
+namespace TestServices;
 
 public static class ServiceCollectionExtensions
 {
     public static void DecorateByTestServices(this IServiceCollection services)
     {
-        var serviceDescriptors = new List<ServiceDescriptor>();
+        var genericServiceDescriptors = new List<ServiceDescriptor>();
+        
         var newServices = services.Select(descriptor =>
             {
                 if (descriptor.ServiceType.IsInterface)
                 {
                     if (descriptor.ServiceType.IsGenericType)
                     {
-                        if (descriptor.ServiceType == typeof(IOptions<>))
-                        {
-                            serviceDescriptors.Add(descriptor);
-                            return new ServiceDescriptor(descriptor.ServiceType,
-                                typeof(OptionsProxy<>),
-                                descriptor.Lifetime);
-                        }
+                        genericServiceDescriptors.Add(descriptor);
+                        //TODO: использовать GenericProxyBase<TService>
+                        return descriptor;
                     }
                     else
                     {
@@ -44,7 +38,7 @@ public static class ServiceCollectionExtensions
             .ToList();
             
         services.Clear();
-        services.AddSingleton(new GenericServiceDescriptorsProvider(serviceDescriptors));
+        services.AddSingleton(new GenericServiceDescriptorsProvider(genericServiceDescriptors));
         services.Add(newServices);
     }
 
@@ -136,8 +130,8 @@ public static class ServiceCollectionExtensions
         var assemblyName = new AssemblyName { Name = "cae932c33f324144958b3201f81eb165" };
         _moduleBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run).DefineDynamicModule(assemblyName.Name);
     }
-    
-    public const BindingFlags AllBindingFlags = BindingFlags.Default |
+
+    private const BindingFlags AllBindingFlags = BindingFlags.Default |
         BindingFlags.IgnoreCase |
         BindingFlags.DeclaredOnly |
         BindingFlags.Instance |
@@ -157,13 +151,4 @@ public static class ServiceCollectionExtensions
         BindingFlags.SuppressChangeType |
         BindingFlags.OptionalParamBinding |
         BindingFlags.IgnoreReturn;
-}
-
-public class OptionsProxy<TOptions> : GenericProxyBase<IOptions<TOptions>>, IOptions<TOptions> where TOptions : class
-{
-    public OptionsProxy(IServiceProvider serviceProvider) : base(serviceProvider, 0 + GenericProxy.IndexOffset)
-    {
-    }
-
-    public TOptions Value => Service.Value;
 }
