@@ -42,7 +42,7 @@ services.AddHttpClient<IGithubClient, GithubClient>(client =>
 });
 
 // <snippet2>
-services.AddScoped<IQuoteService, QuoteService>();
+services.AddScoped<ISampleService, SampleService>();
 // </snippet2>
 
 services.Configure<PositionOptions>(

@@ -1,7 +1,7 @@
 namespace RazorPagesProject.Services;
 
 // <snippet1>
-public interface IQuoteService
+public interface ISampleService
 {
     Task<string> GenerateQuote();
 }

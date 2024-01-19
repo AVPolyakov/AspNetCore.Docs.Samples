@@ -12,12 +12,12 @@ namespace RazorPagesProject.Pages
     public class IndexModel : PageModel
     {
         private readonly ApplicationDbContext _db;
-        private readonly IQuoteService _quoteService;
+        private readonly ISampleService _sampleService;
 
-        public IndexModel(ApplicationDbContext db, IQuoteService quoteService)
+        public IndexModel(ApplicationDbContext db, ISampleService sampleService)
         {
             _db = db;
-            _quoteService = quoteService;
+            _sampleService = sampleService;
         }
 
         [BindProperty]
@@ -34,7 +34,7 @@ namespace RazorPagesProject.Pages
         {
             Messages = await _db.GetMessagesAsync();
 
-            Quote = await _quoteService.GenerateQuote();
+            Quote = await _sampleService.GenerateQuote();
         }
         // </snippet1>
 

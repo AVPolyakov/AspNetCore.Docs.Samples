@@ -26,6 +26,8 @@ public static class ServiceCollectionExtensions
                     {
                         if (IsImplemented(descriptor))
                         {
+                            //TODO: рассмотреть возможно использования готовых proxy DispatchProxy и DynamicProxy , см. по ссылке
+                            //https://devblogs.microsoft.com/dotnet/migrating-realproxy-usage-to-dispatchproxy/
                             return new ServiceDescriptor(descriptor.ServiceType,
                                 serviceProvider => CreateProxy(descriptor, serviceProvider),
                                 descriptor.Lifetime);
@@ -57,7 +59,8 @@ public static class ServiceCollectionExtensions
     
     private static object CreateProxy(ServiceDescriptor descriptor, IServiceProvider serviceProvider)
     {
-        return _proxyFuncsByType.GetOrAdd(descriptor.ServiceType, GetProxyFunc)(descriptor, serviceProvider);
+        var proxyFunc = _proxyFuncsByType.GetOrAdd(descriptor.ServiceType, GetProxyFunc);
+        return proxyFunc(descriptor, serviceProvider);
     }
 
     private static Func<ServiceDescriptor, IServiceProvider, object> GetProxyFunc(Type serviceType)

@@ -150,7 +150,7 @@ public class IndexPageTests :
 // <snippet4>
     // Quote ©1975 BBC: The Doctor (Tom Baker); Pyramids of Mars
     // https://www.bbc.co.uk/programmes/p00pys55
-    public class TestQuoteService : IQuoteService
+    public class TestSampleService : ISampleService
     {
         public Task<string> GenerateQuote()
         {
@@ -170,7 +170,7 @@ public class IndexPageTests :
             {
                 builder.ConfigureTestServices(services =>
                 {
-                    services.AddScoped<IQuoteService, TestQuoteService>();
+                    services.AddScoped<ISampleService, TestSampleService>();
                 });
             })
             .CreateClient();
@@ -187,9 +187,10 @@ public class IndexPageTests :
 // </snippet5>
 
     [Fact]
-    public async Task Get_TestQuoteService_ProvidesQuoteInPage()
+    public async Task Get_NSubstituteCurrent_ProvidesQuoteInPage()
     {
-        Service<IQuoteService>.Current = new TestQuoteService();
+        var service = Service<ISampleService>.Current = Substitute.For<ISampleService>();
+        service.GenerateQuote().ReturnsForAnyArgs("test1");
 
         //Act
         var defaultPage = await _client.GetAsync("/");
@@ -197,14 +198,13 @@ public class IndexPageTests :
         var quoteElement = content.QuerySelector("#quote");
 
         // Assert
-        Assert.Equal("Something's interfering with time, Mr. Scarman, " +
-            "and time is my business.", quoteElement.Attributes["value"].Value);
+        Assert.Equal("test1", quoteElement.Attributes["value"].Value);
     }
 
     [Fact]
-    public async Task Get_NSubstituteService_ProvidesQuoteInPage()
+    public async Task Get_NSubstituteSetCurrent_ProvidesQuoteInPage()
     {
-        Service.SetCurrent(Substitute.For<IQuoteService>())
+        Service.SetCurrent(Substitute.For<ISampleService>())
             .GenerateQuote().ReturnsForAnyArgs("test1");
 
         //Act
