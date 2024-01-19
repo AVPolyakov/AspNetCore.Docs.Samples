@@ -45,6 +45,9 @@ services.AddHttpClient<IGithubClient, GithubClient>(client =>
 services.AddScoped<IQuoteService, QuoteService>();
 // </snippet2>
 
+services.Configure<PositionOptions>(
+    appBuilder.Configuration.GetSection(PositionOptions.Position));
+
 services.AddDatabaseDeveloperPageExceptionFilter();
 
 using var app = appBuilder.Build();

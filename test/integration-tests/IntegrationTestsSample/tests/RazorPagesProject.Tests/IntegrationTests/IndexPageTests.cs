@@ -2,9 +2,12 @@ using System.Net;
 using AngleSharp.Html.Dom;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Options;
+using NSubstitute;
 using RazorPagesProject.Data;
 using RazorPagesProject.Services;
 using RazorPagesProject.Tests.Helpers;
+using TestServices;
 using Xunit;
 
 namespace RazorPagesProject.Tests.IntegrationTests;
@@ -182,4 +185,48 @@ public class IndexPageTests :
             "and time is my business.", quoteElement.Attributes["value"].Value);
     }
 // </snippet5>
+
+    [Fact]
+    public async Task Get_TestQuoteService_ProvidesQuoteInPage()
+    {
+        Service<IQuoteService>.Current = new TestQuoteService();
+
+        //Act
+        var defaultPage = await _client.GetAsync("/");
+        var content = await HtmlHelpers.GetDocumentAsync(defaultPage);
+        var quoteElement = content.QuerySelector("#quote");
+
+        // Assert
+        Assert.Equal("Something's interfering with time, Mr. Scarman, " +
+            "and time is my business.", quoteElement.Attributes["value"].Value);
+    }
+
+    [Fact]
+    public async Task Get_NSubstituteService_ProvidesQuoteInPage()
+    {
+        NSubstituteService.SetCurrentFor<IQuoteService>()
+            .GenerateQuote().ReturnsForAnyArgs("test1");
+
+        //Act
+        var defaultPage = await _client.GetAsync("/");
+        var content = await HtmlHelpers.GetDocumentAsync(defaultPage);
+        var quoteElement = content.QuerySelector("#quote");
+
+        // Assert
+        Assert.Equal("test1", quoteElement.Attributes["value"].Value);
+    }
+
+    [Fact]
+    public async Task Get_Options_ProvidesQuoteInPage()
+    {
+        Service<IOptions<PositionOptions>>.Current = new TestOptions<PositionOptions>(new PositionOptions { Name = "3" });
+
+        //Act
+        var defaultPage = await _client.GetAsync("/");
+        var content = await HtmlHelpers.GetDocumentAsync(defaultPage);
+        var quoteElement = content.QuerySelector("#quote");
+
+        // Assert
+        Assert.Equal("3", quoteElement.Attributes["value"].Value);
+    }
 }

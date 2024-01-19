@@ -2,7 +2,9 @@ using System.Data.Common;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using RazorPagesProject.Data;
+using RazorPagesProject.Services;
 
 namespace RazorPagesProject.Tests;
 
@@ -10,6 +12,11 @@ namespace RazorPagesProject.Tests;
 public class CustomWebApplicationFactory<TProgram>
     : WebApplicationFactory<TProgram> where TProgram : class
 {
+    public CustomWebApplicationFactory()
+    {
+        Server.PreserveExecutionContext = true;
+    }
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.ConfigureServices(services =>
@@ -40,6 +47,8 @@ public class CustomWebApplicationFactory<TProgram>
                 var connection = container.GetRequiredService<DbConnection>();
                 options.UseSqlite(connection);
             });
+            
+            services.DecorateByTestServices();
         });
 
         builder.UseEnvironment("Development");

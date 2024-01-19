@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Options;
+
 namespace RazorPagesProject.Services;
 
 // <snippet1>
@@ -5,11 +7,16 @@ namespace RazorPagesProject.Services;
 // https://www.bbc.co.uk/programmes/p00pyrx6
 public class QuoteService : IQuoteService
 {
+    private readonly IOptions<PositionOptions> _options;
+
+    public QuoteService(IOptions<PositionOptions> options)
+    {
+        _options = options;
+    }
+
     public Task<string> GenerateQuote()
     {
-        return Task.FromResult<string>(
-            "Come on, Sarah. We've an appointment in London, " +
-            "and we're already 30,000 years late.");
+        return Task.FromResult(_options.Value.Name);
     }
 }
 // </snippet1>
