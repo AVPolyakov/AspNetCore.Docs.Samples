@@ -65,9 +65,12 @@ public static class ServiceCollectionExtensions
 
     private static Func<ServiceDescriptor, IServiceProvider, object> GetProxyFunc(Type serviceType)
     {
+        var assemblyName = new AssemblyName { Name = Guid.NewGuid().ToString("N") };
+        var moduleBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run).DefineDynamicModule(assemblyName.Name);
+        
         var parent = typeof(ProxyBase<>).MakeGenericType(serviceType);
         
-        var typeBuilder = _moduleBuilder.DefineType(
+        var typeBuilder = moduleBuilder.DefineType(
             name: $"{serviceType.Name}_{Guid.NewGuid()}",
             attr: TypeAttributes.Public,
             parent: parent,
@@ -124,14 +127,6 @@ public static class ServiceCollectionExtensions
 
         return (Func<ServiceDescriptor, IServiceProvider, object>)
             dynamicMethod.CreateDelegate(typeof(Func<ServiceDescriptor, IServiceProvider, object>));
-    }
-
-    private static readonly ModuleBuilder _moduleBuilder;
-
-    static ServiceCollectionExtensions()
-    {
-        var assemblyName = new AssemblyName { Name = "cae932c33f324144958b3201f81eb165" };
-        _moduleBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run).DefineDynamicModule(assemblyName.Name);
     }
 
     private const BindingFlags AllBindingFlags = BindingFlags.Default |
