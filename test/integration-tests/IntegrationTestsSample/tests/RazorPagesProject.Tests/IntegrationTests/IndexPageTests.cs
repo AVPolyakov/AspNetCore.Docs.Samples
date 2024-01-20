@@ -152,7 +152,7 @@ public class IndexPageTests :
     // https://www.bbc.co.uk/programmes/p00pys55
     public class TestSampleService : ISampleService
     {
-        public Task<string> GenerateQuote()
+        public Task<string> GetSampleValue()
         {
             return Task.FromResult(
                 "Something's interfering with time, Mr. Scarman, " +
@@ -190,7 +190,7 @@ public class IndexPageTests :
     public async Task Get_NSubstituteCurrent_ProvidesQuoteInPage()
     {
         var service = Service<ISampleService>.Current = Substitute.For<ISampleService>();
-        service.GenerateQuote().ReturnsForAnyArgs("test1");
+        service.GetSampleValue().ReturnsForAnyArgs("test1");
 
         //Act
         var defaultPage = await _client.GetAsync("/");
@@ -205,7 +205,7 @@ public class IndexPageTests :
     public async Task Get_NSubstituteSetCurrent_ProvidesQuoteInPage()
     {
         Service.SetCurrent(Substitute.For<ISampleService>())
-            .GenerateQuote().ReturnsForAnyArgs("test1");
+            .GetSampleValue().ReturnsForAnyArgs("test1");
 
         //Act
         var defaultPage = await _client.GetAsync("/");

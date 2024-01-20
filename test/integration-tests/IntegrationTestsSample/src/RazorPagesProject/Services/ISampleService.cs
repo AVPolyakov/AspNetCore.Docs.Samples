@@ -3,7 +3,7 @@ namespace RazorPagesProject.Services;
 // <snippet1>
 public interface ISampleService
 {
-    Task<string> GenerateQuote();
+    Task<string> GetSampleValue();
 }
 // </snippet1>
 

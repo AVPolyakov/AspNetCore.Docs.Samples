@@ -34,7 +34,7 @@ namespace RazorPagesProject.Pages
         {
             Messages = await _db.GetMessagesAsync();
 
-            Quote = await _sampleService.GenerateQuote();
+            Quote = await _sampleService.GetSampleValue();
         }
         // </snippet1>
 

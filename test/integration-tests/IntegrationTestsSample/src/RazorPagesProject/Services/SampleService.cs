@@ -14,7 +14,7 @@ public class SampleService : ISampleService
         _options = options;
     }
 
-    public Task<string> GenerateQuote()
+    public Task<string> GetSampleValue()
     {
         return Task.FromResult(_options.Value.Name);
     }
