@@ -114,8 +114,7 @@ public static class ServiceCollectionExtensions
         
         var dynamicMethod = new DynamicMethod(Guid.NewGuid().ToString(),
             returnType: typeof(object),
-            parameterTypes: parameterTypes,
-            restrictedSkipVisibility: true);
+            parameterTypes: parameterTypes);
 
         {
             var ilGenerator = dynamicMethod.GetILGenerator();
