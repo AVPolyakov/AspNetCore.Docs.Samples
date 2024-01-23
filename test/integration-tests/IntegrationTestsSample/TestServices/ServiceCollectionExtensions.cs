@@ -67,6 +67,12 @@ public static class ServiceCollectionExtensions
     {
         var type = GenerateType(serviceType);
 
+        /*
+        Генерируется делегат:
+        
+        Func<ServiceDescriptor, IServiceProvider, object> func = (serviceDescriptor, serviceProvider) 
+            => new Service1(serviceDescriptor, serviceProvider);
+         */
         var dynamicMethod = new DynamicMethod(Guid.NewGuid().ToString(),
             returnType: typeof(object),
             parameterTypes: _parameterTypes);
@@ -80,9 +86,23 @@ public static class ServiceCollectionExtensions
         return (Func<ServiceDescriptor, IServiceProvider, object>)
             dynamicMethod.CreateDelegate(typeof(Func<ServiceDescriptor, IServiceProvider, object>));
     }
-
+    
     private static Type GenerateType(Type serviceType)
     {
+        /*
+        Генерируется класс по следующему шаблону: 
+        
+        public class Service1 : ProxyBase<IService1>, IService1
+        {
+            public Service1(ServiceDescriptor descriptor, IServiceProvider serviceProvider) : base(descriptor, serviceProvider)
+            {
+            }
+
+            Для каждого метода из типа serviceType генерируется метод по шаблону:
+         
+            public ReturnType1 Method1(Type1 arg1, Type2 arg2) => Service.Method1(arg2, arg2);
+        }
+        */
         var assemblyName = new AssemblyName { Name = Guid.NewGuid().ToString("N") };
         var moduleBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run).DefineDynamicModule(assemblyName.Name);
 
